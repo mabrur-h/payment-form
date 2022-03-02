@@ -1,6 +1,7 @@
 import './App.css';
 import FormInput from "./components/FormInput";
 import { useState } from "react";
+import axios from "axios";
 
 function App() {
     const [values, setValues] = useState({
@@ -16,8 +17,6 @@ function App() {
             amount: false
         }
     })
-
-
 
     const inputs = [
         {
@@ -64,12 +63,39 @@ function App() {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+
+        const payment = {
+            cardNumber: values.cardNumber,
+            amount: values.amount,
+            cvv: values.cvv,
+            expiration: values.expiration
+        }
+        axios.post('http://localhost:7070/api/payments/create', payment)
+            .then(response => {
+                alert(`RequestId: ${response.data.data._id}, Amount: ${response.data.data.amount}`)
+            })
+            .catch(e => {
+                alert(e)
+            })
+
+        setValues({
+            cardNumber: "",
+            expiration: "",
+            cvv: "",
+            amount: "",
+            buttonDisabled: true,
+            inputState: {
+                cardNumber: false,
+                expiration: false,
+                cvv: false,
+                amount: false
+            }
+        })
     }
 
     const onChange = (e) => {
         setValues({ ...values, [e.target.name]: e.target.value })
         let inputField = inputs.find(el => el.name === e.target.name)
-        console.log(e.target)
         if (new RegExp(inputField.pattern).test(e.target.value)) {
             values.inputState[e.target.name] = true
         } else {
@@ -82,8 +108,6 @@ function App() {
     } else {
         values.buttonDisabled = true
     }
-
-    console.log(values.inputState)
 
     const onKeyPress = (e) => {
         if (!/[0-9]/.test(e.key) || e.target.value.length > 15) {
@@ -99,7 +123,7 @@ function App() {
 
     return (
         <div className="App">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} id='submitForm'>
                 <h1>Payment Form</h1>
                 {inputs.map((input) => (
                     <FormInput
