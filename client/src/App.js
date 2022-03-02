@@ -15,7 +15,7 @@ function App() {
             id: 1,
             name: "cardNumber",
             type: "text",
-            placeholder: "Card Number",
+            placeholder: "Your Card Number",
             label: "cardNumber",
             errorMessage: "This field should be only numbers and length 16 symbols",
             pattern: "^[0-9]{16}$",
@@ -25,7 +25,7 @@ function App() {
             id: 2,
             name: "expiration",
             type: "text",
-            placeholder: "email",
+            placeholder: "MM/YYYY",
             label: "expiration",
             pattern: "^(0[1-9]|1[0-2])\\/?([0-9]{4})$",
             errorMessage: "Expiration date should be in format MM/YYYY",
@@ -35,7 +35,7 @@ function App() {
             id: 3,
             name: "cvv",
             type: "text",
-            placeholder: "card cvv",
+            placeholder: "CVV",
             label: "cvv",
             pattern: "^([0-9]{3})$",
             errorMessage: "CVV should be only numbers and length 3 symbols",
@@ -61,7 +61,15 @@ function App() {
         setValues({ ...values, [e.target.name]: e.target.value })
     }
 
-    console.log(values)
+    const onKeyPress = (e) => {
+        if (!/[0-9]/.test(e.key)) {
+            e.preventDefault();
+        }
+
+        if (e.target.name === 'expiration' && e.target.value.length > 1 && e.target.value.length < 3) {
+            e.target.value += '/'
+        }
+    }
 
     return (
         <div className="App">
@@ -73,6 +81,7 @@ function App() {
                         {...input}
                         value={values[input.name]}
                         onChange={onChange}
+                        onKeyPress={onKeyPress}
                     />
                 ))}
                 <button>Submit</button>
