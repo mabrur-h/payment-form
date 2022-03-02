@@ -7,8 +7,17 @@ function App() {
         cardNumber: "",
         expiration: "",
         cvv: "",
-        amount: ""
+        amount: "",
+        buttonDisabled: true,
+        inputState: {
+            cardNumber: false,
+            expiration: false,
+            cvv: false,
+            amount: false
+        }
     })
+
+
 
     const inputs = [
         {
@@ -27,7 +36,7 @@ function App() {
             type: "text",
             placeholder: "MM/YYYY",
             label: "expiration",
-            pattern: "^(0[1-9]|1[0-2])\\/?([0-9]{4})$",
+            pattern: "^(0[1-9]|1[0-2])\/?([0-9]{4})$",
             errorMessage: "Expiration date should be in format MM/YYYY",
             required: true
         },
@@ -48,7 +57,7 @@ function App() {
             placeholder: "Amount",
             label: "amount",
             errorMessage: "Amount should be only numbers",
-            pattern: `^[0-9]$`,
+            pattern: `^[0-9]*$`,
             required: true
         }
     ]
@@ -59,15 +68,32 @@ function App() {
 
     const onChange = (e) => {
         setValues({ ...values, [e.target.name]: e.target.value })
+        let inputField = inputs.find(el => el.name === e.target.name)
+        console.log(e.target)
+        if (new RegExp(inputField.pattern).test(e.target.value)) {
+            values.inputState[e.target.name] = true
+        } else {
+            values.inputState[e.target.name] = false
+        }
     }
 
-    const onKeyPress = (e) => {
-        if (!/[0-9]/.test(e.key)) {
-            e.preventDefault();
-        }
+    if (Object.values(values.inputState).every(item => item === true)) {
+        values.buttonDisabled = false
+    } else {
+        values.buttonDisabled = true
+    }
 
-        if (e.target.name === 'expiration' && e.target.value.length > 1 && e.target.value.length < 3) {
+    console.log(values.inputState)
+
+    const onKeyPress = (e) => {
+        if (!/[0-9]/.test(e.key) || e.target.value.length > 15) {
+            e.preventDefault();
+        } else if (e.target.name === 'expiration' && e.target.value.length > 1 && e.target.value.length < 3) {
             e.target.value += '/'
+        } else if (e.target.name === 'expiration' && e.target.value.length > 6) {
+            e.preventDefault()
+        } else if (e.target.name === 'cvv' && e.target.value.length > 2) {
+            e.preventDefault()
         }
     }
 
@@ -84,7 +110,7 @@ function App() {
                         onKeyPress={onKeyPress}
                     />
                 ))}
-                <button>Submit</button>
+                <button disabled={values.buttonDisabled}>Send Payment</button>
             </form>
         </div>
     );
